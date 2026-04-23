@@ -62,18 +62,34 @@ snapshot_21 = {}  # snapshot jam 21.00
 # 📡 FETCH DATA BINANCE
 # ─────────────────────────────────────────────
 def fetch_klines(symbol, interval='15m', limit=100):
-    url = f'https://api.binance.com/api/v3/klines'
-    params = {'symbol': symbol, 'interval': interval, 'limit': limit}
+    coin = symbol.replace('USDT', '')
+    kraken_map = {
+        'BTC': 'XBT', 'DOGE': 'XDG', 'MATIC': 'POL',
+        'WLD': 'WLD', 'JUP': 'JUP', 'DYM': 'DYM',
+        'TIA': 'TIA', 'FET': 'FET', 'LDO': 'LDO',
+        'SEI': 'SEI', 'SUI': 'SUI', 'APT': 'APT',
+        'ARB': 'ARB', 'OP': 'OP', 'COMP': 'COMP',
+        'MKR': 'MKR', 'UNI': 'UNI', 'AAVE': 'AAVE'
+    }
+    coin = kraken_map.get(coin, coin)
+    url = f'https://api.kraken.com/0/public/OHLC'
+    params = {'pair': f'{coin}USD', 'interval': 15}
     r = requests.get(url, params=params, timeout=10)
     r.raise_for_status()
     data = r.json()
+    if data.get('error'):
+        raise Exception(f"Kraken error: {data['error']}")
+    keys = [k for k in data['result'].keys() if k != 'last']
+    if not keys:
+        raise Exception('No data from Kraken')
+    raw = data['result'][keys[0]]
     return [{
         'o': float(k[1]),
         'h': float(k[2]),
         'l': float(k[3]),
         'c': float(k[4]),
-        'v': float(k[5])
-    } for k in data]
+        'v': float(k[6])
+    } for k in raw]
 
 # ─────────────────────────────────────────────
 # 📊 INDIKATOR
@@ -594,7 +610,7 @@ def home():
 
 @app.route('/rekap')
 def rekap_endpoint():
-    rekap_manual()
+ rekap_manual()
     return {'status': 'sent'}
 
 @app.route('/status')
@@ -653,8 +669,7 @@ def webhook():
         )
 
     return 'ok'
-
-# ─────────────────────────────────────────────
+    # ─────────────────────────────────────────────
 # 🚀 MAIN
 # ─────────────────────────────────────────────
 if __name__ == '__main__':
@@ -665,3 +680,4 @@ if __name__ == '__main__':
     # Jalankan Flask web server
     port = int(os.environ.get('PORT', 5000))
     app.run(host='0.0.0.0', port=port)
+    
