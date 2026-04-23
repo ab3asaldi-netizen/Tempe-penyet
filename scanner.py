@@ -559,6 +559,18 @@ def scanner_loop():
 # ─────────────────────────────────────────────
 app = Flask(__name__)
 
+# Start scanner saat module diload gunicorn
+_scanner_started = False
+def start_scanner():
+    global _scanner_started
+    if not _scanner_started:
+        _scanner_started = True
+        t = threading.Thread(target=scanner_loop, daemon=True)
+        t.start()
+        print('[SCANNER] Thread started successfully!')
+
+start_scanner()
+
 @app.route('/')
 def home():
     stats  = get_stats()
@@ -645,9 +657,6 @@ def webhook():
 # ─────────────────────────────────────────────
 # 🚀 MAIN
 # ─────────────────────────────────────────────
-# Auto-start scanner saat diload gunicorn
-scanner_thread = threading.Thread(target=scanner_loop, daemon=True)
-scanner_thread.start()
 if __name__ == '__main__':
     # Jalankan scanner di thread terpisah
     scanner_thread = threading.Thread(target=scanner_loop, daemon=True)
