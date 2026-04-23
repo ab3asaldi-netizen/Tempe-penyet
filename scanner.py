@@ -645,6 +645,9 @@ def webhook():
 # ─────────────────────────────────────────────
 # 🚀 MAIN
 # ─────────────────────────────────────────────
+# Auto-start scanner saat diload gunicorn
+scanner_thread = threading.Thread(target=scanner_loop, daemon=True)
+scanner_thread.start()
 if __name__ == '__main__':
     # Jalankan scanner di thread terpisah
     scanner_thread = threading.Thread(target=scanner_loop, daemon=True)
