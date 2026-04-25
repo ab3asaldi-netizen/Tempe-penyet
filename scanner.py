@@ -581,10 +581,9 @@ def webhook():
         )
     return 'ok'
 if __name__ == '__main__':
-    # Start scanner thread
-    threading.Thread(target=scanner_loop, daemon=True).start()
+    print('[SCANNER] Starting...')
+    t = threading.Thread(target=scanner_loop, daemon=True)
+    t.start()
     print('[SCANNER] Thread started!')
-    
-    # Start Flask
     port = int(os.environ.get('PORT', 8080))
-    app.run(host='0.0.0.0', port=port, threaded=True)
+    app.run(host='0.0.0.0', port=port, threaded=True, use_reloader=False)
