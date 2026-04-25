@@ -511,7 +511,7 @@ def scanner_loop():
         except Exception as e:
             print(f'[{datetime.now(WIB)}] Loop error: {e}')
 
-        time.sleep(SCAN_INTERVAL)
+        time.sleep(10)
 
 # ─────────────────────────────────────────────
 # 🌐 FLASK + AUTO START
