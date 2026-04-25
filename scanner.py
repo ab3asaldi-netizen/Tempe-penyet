@@ -41,9 +41,7 @@ WIB = timezone(timedelta(hours=7))
 PAIRS = [
     'BTCUSDT','ETHUSDT','BNBUSDT','SOLUSDT','XRPUSDT',
     'DOGEUSDT','ADAUSDT','AVAXUSDT','LINKUSDT','DOTUSDT',
-    'LTCUSDT','NEARUSDT','ATOMUSDT','MATICUSDT','INJUSDT',
-    'ARBUSDT','OPUSDT','APTUSDT','SUIUSDT','FETUSDT',
-    'AAVEUSDT','UNIUSDT','LDOUSDT','SEIUSDT'
+    
 ]
 
 LEVERAGE_MAP = {
@@ -68,7 +66,7 @@ def fetch_klines(symbol, limit=100):
     coin = symbol.replace('USDT', '')
     kraken_map = {
         'BTC':'XBT','DOGE':'XDG','MATIC':'POL',
-        'FET':'FET','LDO':'LDO','SEI':'SEI',
+       'FET':'FET','LDO':'LDO','SEI':'SEI',
         'SUI':'SUI','APT':'APT','ARB':'ARB',
         'OP':'OP','MKR':'MKR','UNI':'UNI',
         'AAVE':'AAVE','INJ':'INJ','NEAR':'NEAR'
@@ -165,11 +163,18 @@ Aturan penting:
     url = (f'https://generativelanguage.googleapis.com/v1/'
            f'models/gemini-2.0-flash:generateContent?key={GEMINI_API_KEY}')
 
+for attempt in range(3):
     r = requests.post(url, json={
         'contents': [{'parts': [{'text': prompt}]}],
         'generationConfig': {'temperature': 0.3, 'maxOutputTokens': 400}
     }, timeout=30)
+    if r.status_code == 429:
+        wait = (attempt + 1) * 20  # 20, 40, 60 detik
+        print(f'Rate limit, tunggu {wait}s...')
+        time.sleep(wait)
+        continue
     r.raise_for_status()
+    break
 
     text = r.json()['candidates'][0]['content']['parts'][0]['text'].strip()
     text = re.sub(r'```json\s*', '', text)
