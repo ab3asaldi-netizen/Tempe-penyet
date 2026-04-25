@@ -35,7 +35,7 @@ RISK_PCT   = 0.02
 TRADE_SIZE = MODAL_USD * RISK_PCT  # $27.6
 USD_TO_IDR = 16300
 MODAL_IDR  = 23_000_000
-SCAN_INTERVAL = 35
+SCAN_INTERVAL = 45
 WIB = timezone(timedelta(hours=7))
 
 PAIRS = [
@@ -43,7 +43,7 @@ PAIRS = [
     'DOGEUSDT','ADAUSDT','AVAXUSDT','LINKUSDT','DOTUSDT',
     'LTCUSDT','NEARUSDT','ATOMUSDT','MATICUSDT','INJUSDT',
     'ARBUSDT','OPUSDT','APTUSDT','SUIUSDT','FETUSDT',
-    'AAVEUSDT','UNIUSDT','MKRUSDT','LDOUSDT','SEIUSDT'
+    'AAVEUSDT','UNIUSDT','LDOUSDT','SEIUSDT'
 ]
 
 LEVERAGE_MAP = {
@@ -446,7 +446,7 @@ def rekap_manual(chat_id=None):
 def scanner_loop():
     pair_idx       = 0
     last_rekap_day = None
-    batch_size     = 3
+    batch_size     = 2
 
     print(f'[{datetime.now(WIB)}] AI Scanner dimulai — {len(PAIRS)} pairs')
     send_tg(
@@ -498,7 +498,7 @@ def scanner_loop():
                 except Exception as e:
                     print(f"[{now.strftime('%H:%M:%S')}] {symbol} error: {e}")
 
-                time.sleep(2)
+                time.sleep(5)
 
             pair_idx = (pair_idx + batch_size) % len(PAIRS)
             monitor_positions()
