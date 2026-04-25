@@ -163,7 +163,7 @@ Aturan penting:
 - HANYA berikan JSON valid, tidak ada teks tambahan"""
 
     url = (f'https://generativelanguage.googleapis.com/v1beta/'
-           f'models/gemini-1.5-flash:generateContent?key={GEMINI_API_KEY}')
+           f'models/gemini-2.0-flash:generateContent?key={GEMINI_API_KEY}')
 
     r = requests.post(url, json={
         'contents': [{'parts': [{'text': prompt}]}],
