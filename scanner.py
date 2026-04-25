@@ -162,64 +162,76 @@ Aturan penting:
 
     url = (f'https://generativelanguage.googleapis.com/v1/'
            f'models/gemini-2.0-flash:generateContent?key={GEMINI_API_KEY}')
+    
+    def ask_gemini(url, prompt, data):
+    import re
 
-for attempt in range(3):
-    r = requests.post(url, json={
-        'contents': [{'parts': [{'text': prompt}]}],
-        'generationConfig': {'temperature': 0.3, 'maxOutputTokens': 400}
-    }, timeout=30)
-    if r.status_code == 429:
-        wait = (attempt + 1) * 20  # 20, 40, 60 detik
-        print(f'Rate limit, tunggu {wait}s...')
-        time.sleep(wait)
-        continue
-    r.raise_for_status()
-    break
+    for attempt in range(3):
+        r = requests.post(url, json={
+            'contents': [{'parts': [{'text': prompt}]}],
+            'generationConfig': {'temperature': 0.3, 'maxOutputTokens': 400}
+        }, timeout=30)
 
-    text = r.json()['candidates'][0]['content']['parts'][0]['text'].strip()
-    text = re.sub(r'```json\s*', '', text)
-    text = re.sub(r'```\s*', '', text)
-    text = text.strip()
+        if r.status_code == 429:
+            wait = (attempt + 1) * 20
+            print(f'Rate limit, tunggu {wait}s...')
+            time.sleep(wait)
+            continue
 
-    parsed     = json.loads(text)
-    direction  = str(parsed.get('direction', 'HOLD')).upper()
-    confidence = int(parsed.get('confidence', 50))
-    leverage   = int(parsed.get('leverage', 5))
-    sl         = float(parsed.get('stop_loss', 0))
-    tp         = float(parsed.get('take_profit', 0))
-    reasoning  = str(parsed.get('reasoning', '-'))
-    key_levels = str(parsed.get('key_levels', '-'))
-    risk_note  = str(parsed.get('risk_note', '-'))
-    last       = data['last']
+        r.raise_for_status()
 
-    # Validasi SL/TP
-    if direction == 'LONG':
-        if sl >= last: sl = last * 0.985
-        if tp <= last: tp = last * 1.025
-    elif direction == 'SHORT':
-        if sl <= last: sl = last * 1.015
-        if tp >= last: tp = last * 0.975
+        # ✅ parsing HARUS di dalam loop (sebelum break)
+        text = r.json()['candidates'][0]['content']['parts'][0]['text'].strip()
+        text = re.sub(r'```json\s*', '', text)
+        text = re.sub(r'```\s*', '', text)
+        text = text.strip()
 
-    # Confidence level
-    if confidence >= 85:   conf_level = 'VERY_HIGH'
-    elif confidence >= 70: conf_level = 'HIGH'
-    elif confidence >= 55: conf_level = 'MEDIUM'
-    else:                  conf_level = 'LOW'
+        try:
+            parsed = json.loads(text)
+        except:
+            print("JSON error:", text)
+            return None
 
-    leverage = min(leverage, LEVERAGE_MAP[conf_level])
+        direction  = str(parsed.get('direction', 'HOLD')).upper()
+        confidence = int(parsed.get('confidence', 50))
+        leverage   = int(parsed.get('leverage', 5))
+        sl         = float(parsed.get('stop_loss', 0))
+        tp         = float(parsed.get('take_profit', 0))
+        reasoning  = str(parsed.get('reasoning', '-'))
+        key_levels = str(parsed.get('key_levels', '-'))
+        risk_note  = str(parsed.get('risk_note', '-'))
+        last       = data['last']
 
-    return {
-        'direction':  direction,
-        'confidence': confidence,
-        'conf_level': conf_level,
-        'leverage':   leverage,
-        'entry':      last,
-        'sl':         sl,
-        'tp':         tp,
-        'reasoning':  reasoning,
-        'key_levels': key_levels,
-        'risk_note':  risk_note
-    }
+        # Validasi SL/TP
+        if direction == 'LONG':
+            if sl >= last: sl = last * 0.985
+            if tp <= last: tp = last * 1.025
+        elif direction == 'SHORT':
+            if sl <= last: sl = last * 1.015
+            if tp >= last: tp = last * 0.975
+
+        # Confidence level
+        if confidence >= 85:   conf_level = 'VERY_HIGH'
+        elif confidence >= 70: conf_level = 'HIGH'
+        elif confidence >= 55: conf_level = 'MEDIUM'
+        else:                  conf_level = 'LOW'
+
+        leverage = min(leverage, LEVERAGE_MAP[conf_level])
+
+        return {
+            'direction':  direction,
+            'confidence': confidence,
+            'conf_level': conf_level,
+            'leverage':   leverage,
+            'entry':      last,
+            'sl':         sl,
+            'tp':         tp,
+            'reasoning':  reasoning,
+            'key_levels': key_levels,
+            'risk_note':  risk_note
+        }
+
+    return None  # kalau semua retry gagal
 
 # ─────────────────────────────────────────────
 # 💾 STATISTIK
