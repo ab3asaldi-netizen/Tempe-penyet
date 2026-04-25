@@ -513,20 +513,6 @@ def scanner_loop():
 # ─────────────────────────────────────────────
 app = Flask(__name__)
 
-def start_scanner():
-    global _started
-    if not _started:
-        _started = True
-        try:
-            threading.Thread(target=scanner_loop, daemon=True).start()
-            print('[SCANNER] Thread started!')
-        except Exception as e:
-            print(f'[SCANNER] Start error: {e}')
-
-try:
-    start_scanner()
-except Exception as e:
-    print(f'[SCANNER] Init error: {e}')
 
 @app.route('/')
 def home():
@@ -594,7 +580,11 @@ def webhook():
             chat_id
         )
     return 'ok'
-
 if __name__ == '__main__':
-    port = int(os.environ.get('PORT', 5000))
-    app.run(host='0.0.0.0', port=port)
+    # Start scanner thread
+    threading.Thread(target=scanner_loop, daemon=True).start()
+    print('[SCANNER] Thread started!')
+    
+    # Start Flask
+    port = int(os.environ.get('PORT', 8080))
+    app.run(host='0.0.0.0', port=port, threaded=True)
