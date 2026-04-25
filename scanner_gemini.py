@@ -165,7 +165,7 @@ def calc_indicators(klines):
 # 🤖 ANALISA GEMINI AI
 # ─────────────────────────────────────────────
 def ask_gemini(symbol, indicators, modal_usd):
-    url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={GEMINI_API_KEY}"
+    url = f"https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash-latest:generateContent?key={GEMINI_API_KEY}"
 
     prompt = f"""Kamu adalah AI trading analyst profesional untuk crypto futures.
 Analisa data berikut untuk {symbol} timeframe 15 menit dan berikan keputusan trading.
