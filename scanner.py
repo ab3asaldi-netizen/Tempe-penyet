@@ -163,7 +163,7 @@ Aturan penting:
     url = (f'https://generativelanguage.googleapis.com/v1/'
            f'models/gemini-2.0-flash:generateContent?key={GEMINI_API_KEY}')
     
-    def ask_gemini(url, prompt, data):
+def ask_gemini(url, prompt, data):
     import re
 
     for attempt in range(3):
