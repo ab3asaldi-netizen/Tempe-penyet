@@ -162,7 +162,7 @@ Aturan penting:
 - Jika sinyal tidak jelas, gunakan HOLD
 - HANYA berikan JSON valid, tidak ada teks tambahan"""
 
-    url = (f'https://generativelanguage.googleapis.com/v1beta/'
+    url = (f'https://generativelanguage.googleapis.com/v1/'
            f'models/gemini-2.0-flash:generateContent?key={GEMINI_API_KEY}')
 
     r = requests.post(url, json={
