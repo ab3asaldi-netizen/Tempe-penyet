@@ -13,4 +13,4 @@ ENV PORT=8080
 
 EXPOSE 8080
 
-CMD ["gunicorn", "scanner:app", "--worker-class", "gthread", "--threads", "2", "--timeout", "120", "--bind", "0.0.0.0:8080", "--preload"]
+CMD ["python", "scanner:py"]
