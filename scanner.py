@@ -513,15 +513,20 @@ def scanner_loop():
 # ─────────────────────────────────────────────
 app = Flask(__name__)
 
-_started = False
 def start_scanner():
     global _started
     if not _started:
         _started = True
-        threading.Thread(target=scanner_loop, daemon=True).start()
-        print('[SCANNER] Thread started!')
+        try:
+            threading.Thread(target=scanner_loop, daemon=True).start()
+            print('[SCANNER] Thread started!')
+        except Exception as e:
+            print(f'[SCANNER] Start error: {e}')
 
-start_scanner()
+try:
+    start_scanner()
+except Exception as e:
+    print(f'[SCANNER] Init error: {e}')
 
 @app.route('/')
 def home():
