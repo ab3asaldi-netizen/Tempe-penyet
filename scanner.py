@@ -35,7 +35,7 @@ RISK_PCT   = 0.02
 TRADE_SIZE = MODAL_USD * RISK_PCT  # $27.6
 USD_TO_IDR = 16300
 MODAL_IDR  = 23_000_000
-SCAN_INTERVAL = 45
+SCAN_INTERVAL = 60
 WIB = timezone(timedelta(hours=7))
 
 PAIRS = [
@@ -451,7 +451,7 @@ def rekap_manual(chat_id=None):
 def scanner_loop():
     pair_idx       = 0
     last_rekap_day = None
-    batch_size     = 2
+    batch_size     = 1
 
     print(f'[{datetime.now(WIB)}] AI Scanner dimulai — {len(PAIRS)} pairs')
     send_tg(
